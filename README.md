@@ -198,11 +198,6 @@ Credify introduces:
 
 ---
 
-## Author
-
-Shibaditya Deb
-
----
 
 ## Note
 
