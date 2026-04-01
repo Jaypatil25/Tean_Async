@@ -5,6 +5,7 @@ import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
 import './App.css'
 import Form from './Form'
+import AuthModal from './AuthModal'
 
 function Home() {
   const [count, setCount] = useState(0)
@@ -121,16 +122,31 @@ function Home() {
 }
 
 function App() {
+   const [showAuth, setShowAuth] = useState(false)    
+  const [authTab, setAuthTab] = useState('login')    
+ 
+  const openAuth = (tab) => {                        
+    setAuthTab(tab)
+    setShowAuth(true)
+  }
   return (
     <Router>
       <nav style={{ padding: '10px', marginBottom: '20px' }}>
         <Link to="/" style={{ marginRight: '15px' }}>Home</Link>
         <Link to="/form">Form</Link>
+          <button onClick={() => openAuth('login')}  style={{ marginLeft: '15px' }}>Sign in</button>   
+        <button onClick={() => openAuth('signup')} style={{ marginLeft: '8px' }}>Sign up</button> 
       </nav>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/form" element={<Form />} />
       </Routes>
+      {showAuth && (                                 
+        <AuthModal
+          defaultTab={authTab}
+          onClose={() => setShowAuth(false)}
+        />
+      )}
     </Router>
   )
 }
