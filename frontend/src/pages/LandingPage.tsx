@@ -68,7 +68,17 @@ export default function LandingPage() {
       <main className="pt-16 min-h-screen flex flex-col lg:flex-row">
 
         {/* Left — Hero */}
-        <div className="flex-1 flex flex-col justify-center px-8 py-16 lg:px-16 xl:px-24 bg-white dark:bg-gray-900 relative overflow-hidden">
+        <div
+          className="flex-1 flex flex-col justify-center px-8 py-16 lg:px-16 xl:px-24 bg-white dark:bg-gray-900 relative overflow-hidden"
+          style={{
+            backgroundImage: "url('/fin-doodle.avif')",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
+          }}
+        >
+          {/* Overlay to keep bg at 10% opacity */}
+          <div className="absolute inset-0 bg-white/90 dark:bg-gray-900/90 pointer-events-none" />
 
           {/* Background decoration */}
           <div className="absolute -top-32 -left-32 w-96 h-96 bg-brand-500/5 rounded-full blur-3xl pointer-events-none" />

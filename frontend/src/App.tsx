@@ -24,6 +24,7 @@ import AnalysisDashboard from "./pages/AnalysisDashboard";
 import {
   ProtectedRoute,
   PublicOnlyRoute,
+  LandingRoute,
 } from "./components/auth/AuthGuards";
 
 export default function App() {
@@ -33,8 +34,10 @@ export default function App() {
         <ScrollToTop />
         <Routes>
           {/* Landing / Home */}
-          <Route path="/landing" element={<LandingPage />} />
-          <Route index path="/" element={<LandingPage />} />
+          <Route element={<LandingRoute />}>
+            <Route path="/landing" element={<LandingPage />} />
+            <Route index path="/" element={<LandingPage />} />
+          </Route>
 
           <Route element={<ProtectedRoute />}>
             {/* Dashboard Layout */}
