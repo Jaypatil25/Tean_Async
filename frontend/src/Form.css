@@ -1,13 +1,22 @@
 @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&display=swap');
 
+/* Reset dashboard global styles for this page */
+.form-root, .form-root * {
+  font-family: var(--font-main) !important;
+}
+
+.form-root {
+  background: var(--black-deep) !important;
+}
+
 :root {
-  --black: #000000;
-  --black-deep: #080808;
-  --black-card: #0d0d0d;
-  --black-surface: #111111;
+  --black: #ffffff;
+  --black-deep: #ffffff;
+  --black-card: #ffffff;
+  --black-surface: #ffffff;
   --black-border: #1a1a1a;
   --black-hover: #161616;
-  --neon: #39ff14;
+  --neon: #1433ff;
   --neon-dim: #1aff0033;
   --neon-border: #39ff1440;
   --neon-glow: #39ff1420;
@@ -27,10 +36,8 @@
   --font-main: 'Rajdhani', sans-serif;
 }
 
-*, *::before, *::after {
+.form-root *, .form-root *::before, .form-root *::after {
   box-sizing: border-box;
-  margin: 0;
-  padding: 0;
 }
 
 .form-root {
@@ -39,6 +46,11 @@
   font-family: var(--font-main);
   color: var(--white);
   padding: 0;
+}
+
+.form-root.form-root--embedded {
+  min-height: auto;
+  background: transparent;
 }
 
 
@@ -52,6 +64,10 @@
   position: sticky;
   top: 0;
   z-index: 100;
+}
+
+.form-root--embedded .form-header {
+  display: none;
 }
 
 .header-brand {
@@ -122,6 +138,11 @@
   scrollbar-width: none;
 }
 
+.form-root--embedded .progress-wrap {
+  border-top: 1px solid var(--black-border);
+  border-radius: 16px 16px 0 0;
+}
+
 .progress-wrap::-webkit-scrollbar { display: none; }
 
 .step-tab {
@@ -172,6 +193,10 @@
   max-width: 900px;
   margin: 0 auto;
   padding: 32px 24px 80px;
+}
+
+.form-root--embedded .form-body {
+  padding: 24px 20px 40px;
 }
 
 .section-block {

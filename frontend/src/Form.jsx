@@ -637,7 +637,7 @@ export default function Form({ onSubmit }) {
   };
 
   return (
-    <div className="form-root">
+    <div className="form-root form-root--embedded">
       {/* Header */}
       <header className="form-header">
         <div className="header-brand">
