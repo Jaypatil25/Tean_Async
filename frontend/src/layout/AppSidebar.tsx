@@ -19,6 +19,16 @@ type NavItem = {
 
 const navItems: NavItem[] = [
   {
+    icon: <ListIcon />,
+    name: "Credit Application",
+    path: "/apply",
+  },
+  {
+    icon: <HorizontaLDots />,
+    name: "Analysis Results",
+    path: "/analysis-results",
+  },
+  {
     icon: <UserCircleIcon />,
     name: "User Profile",
     path: "/profile",

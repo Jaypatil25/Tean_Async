@@ -1,5 +1,7 @@
 import { useState, useCallback } from "react";
+import { useNavigate } from "react-router";
 import "./Form.css";
+import analysisService from "./services/analysisService";
 
 const PAN_RE = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
 
@@ -616,12 +618,135 @@ const INIT = {
 export default function Form({ onSubmit }) {
   const [step, setStep] = useState(0);
   const [data, setData] = useState(INIT);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+  const navigate = useNavigate();
 
   const set = useCallback((key, val) => setData((d) => ({ ...d, [key]: val })), []);
 
-  const handleSubmit = () => {
-    if (onSubmit) onSubmit(data);
-    alert("Application submitted! AI analysis is now running…");
+  const buildAssessmentPayload = () => {
+    const formPayload = {
+      companyName: data.co_name,
+      pan: data.co_pan,
+      gstin: data.gstin,
+      cin: data.cin,
+      udyam: data.udyam,
+      businessType: data.biz_type,
+      industry: data.industry,
+      yrs: data.yrs,
+      loanAmount: data.loan_amt,
+      loanPurpose: data.loan_purpose,
+      loanType: data.loan_type,
+      tenor: data.tenor,
+      collateral: data.collateral,
+      rev24: data.rev24,
+      rev23: data.rev23,
+      rev22: data.rev22,
+      np24: data.np24,
+      np23: data.np23,
+      np22: data.np22,
+      assets: data.assets,
+      liab: data.liab,
+      networth: data.networth,
+      emi: data.emi,
+      outstanding: data.outstanding,
+      banks: data.banks,
+      cibil: data.cibil,
+      exim: data.exim,
+      export_pct: data.export_pct,
+      promoterName: data.pr_name,
+      promoterPan: data.pr_pan,
+      aadhaarLast4: data.aadhaar,
+      din: data.din,
+      promoterShare: data.pr_share,
+      otherDirectorships: data.pr_other_co,
+      copromoter: data.co_pr,
+      litigation: data.litigation,
+      npa: data.npa,
+      litigationDetails: data.lit_detail,
+      newsLinks: data.news_links,
+      cust1: data.cust1,
+      cust2: data.cust2,
+      cust3: data.cust3,
+      sup1: data.sup1,
+      sup2: data.sup2,
+      sup3: data.sup3,
+      groupCompanies: data.group_cos,
+      interCompanyLoans: data.interco,
+      auditor: data.auditor,
+      employees: data.employees,
+      capacity: data.capacity,
+      state: data.state,
+      primaryBank: data.primary_bank,
+      businessDescription: data.biz_desc,
+    };
+
+    const files = {
+      pnl: data.f_pl,
+      balanceSheet: data.f_bs,
+      bank: data.f_bank,
+      gst: data.f_gst,
+    };
+
+    const companyData = {
+      companyId: data.co_pan || data.cin || data.co_name,
+      name: data.co_name,
+      pan: data.co_pan,
+      cin: data.cin,
+      businessActivity: data.biz_desc || data.industry,
+      turnover: Number(data.rev24) || 0,
+      employeeCount: Number(data.employees) || 0,
+      directors: data.pr_name
+        ? [
+            {
+              id: data.pr_pan || data.pr_name,
+              name: data.pr_name,
+              pan: data.pr_pan,
+            },
+          ]
+        : [],
+      owners: data.pr_name
+        ? [
+            {
+              id: data.pr_pan || data.pr_name,
+              name: data.pr_name,
+              stake: Number(data.pr_share) || 0,
+              role: "PROMOTER",
+            },
+          ]
+        : [],
+    };
+
+    return { formPayload, files, companyData };
+  };
+
+  const handleSubmit = async () => {
+    if (isSubmitting) return;
+
+    try {
+      setIsSubmitting(true);
+      setSubmitError("");
+
+      const { formPayload, files, companyData } = buildAssessmentPayload();
+      const result = await analysisService.runFullAssessment(
+        formPayload,
+        files,
+        companyData
+      );
+
+      if (onSubmit) onSubmit(result);
+
+      sessionStorage.setItem("latestAnalysisResult", JSON.stringify(result));
+      navigate("/analysis-results", { state: { analysisResult: result } });
+    } catch (error) {
+      setSubmitError(
+        error instanceof Error
+          ? error.message
+          : "Unable to complete AI analysis right now."
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const renderStep = () => {
@@ -674,6 +799,7 @@ export default function Form({ onSubmit }) {
 
         {}
         <div className="btn-row">
+          {submitError && <Flag msg={submitError} type="err" />}
           {step > 0 && (
             <button className="btn" type="button" onClick={() => setStep((s) => s - 1)}>
               ← Back
@@ -685,8 +811,13 @@ export default function Form({ onSubmit }) {
             </button>
           )}
           {step === 5 && (
-            <button className="btn submit" type="button" onClick={handleSubmit}>
-              Submit for AI analysis →
+            <button
+              className="btn submit"
+              type="button"
+              onClick={handleSubmit}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Running AI analysis..." : "Submit for AI analysis →"}
             </button>
           )}
         </div>

@@ -33,7 +33,7 @@ export default function SignUpForm() {
     try {
       const name = `${firstName} ${lastName}`.trim();
       await signup({ name, email, password });
-      navigate("/dashboard", { replace: true });
+      navigate("/apply", { replace: true });
     } catch (error) {
       setErrorMessage(
         error instanceof Error ? error.message : "Unable to create account"
@@ -51,7 +51,7 @@ export default function SignUpForm() {
           className="inline-flex items-center text-sm text-gray-500 transition-colors hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
         >
           <ChevronLeftIcon className="size-5" />
-          Back to dashboard
+          Back to home
         </Link>
       </div>
       <div className="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">

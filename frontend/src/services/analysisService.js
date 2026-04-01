@@ -1,5 +1,5 @@
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 class AnalysisService {
   /**
@@ -106,6 +106,10 @@ class AnalysisService {
       const formPayload = new FormData();
       for (const [key, value] of Object.entries(formData)) {
         if (value !== null && value !== undefined) {
+          if (value instanceof File) {
+            continue;
+          }
+
           formPayload.append(key, typeof value === 'object' ? JSON.stringify(value) : value);
         }
       }
@@ -118,6 +122,12 @@ class AnalysisService {
       if (files.bank) {
         formPayload.append('bank', files.bank);
       }
+      if (files.balanceSheet) {
+        formPayload.append('balanceSheet', files.balanceSheet);
+      }
+      if (files.gst) {
+        formPayload.append('gst', files.gst);
+      }
 
       const response = await fetch(`${API_BASE}/assess`, {
         method: 'POST',
@@ -125,7 +135,18 @@ class AnalysisService {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        let message = `HTTP ${response.status}: ${response.statusText}`;
+
+        try {
+          const errorPayload = await response.json();
+          if (errorPayload?.message) {
+            message = errorPayload.message;
+          }
+        } catch {
+          // Keep the fallback HTTP message if the response is not JSON.
+        }
+
+        throw new Error(message);
       }
 
       return await response.json();

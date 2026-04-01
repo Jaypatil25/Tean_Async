@@ -20,6 +20,7 @@ import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
 import LandingPage from "./pages/LandingPage";
 import CreditApply from "./pages/CreditApply";
+import AnalysisDashboard from "./pages/AnalysisDashboard";
 import {
   ProtectedRoute,
   PublicOnlyRoute,
@@ -47,6 +48,7 @@ export default function App() {
 
               {/* Credit Application */}
               <Route path="/apply" element={<CreditApply />} />
+              <Route path="/analysis-results" element={<AnalysisDashboard />} />
 
               {/* Forms */}
               <Route path="/form-elements" element={<FormElements />} />
