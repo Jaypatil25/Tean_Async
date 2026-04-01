@@ -1,4 +1,3 @@
-
 import crypto from 'crypto';
 
 class ContradictionDetector {
@@ -13,11 +12,7 @@ class ContradictionDetector {
     };
   }
 
-  /**
-   * Extract numerical metrics from text with context
-   * @param {string} text
-   * @returns {Object} metrics with values and contexts
-   */
+
   extractMetrics(text) {
     const metrics = {
       revenue: [],
@@ -82,11 +77,7 @@ class ContradictionDetector {
     return metrics;
   }
 
-  /**
-   * Normalize currency values to standard format (in rupees)
-   * @param {string} value
-   * @returns {number|null}
-   */
+
   normalizeValue(value) {
     if (!value) return null;
     
@@ -102,11 +93,7 @@ class ContradictionDetector {
     return num;
   }
 
-  /**
-   * Check for accounting identity contradictions (Assets = Liabilities + Equity)
-   * @param {Object} metrics
-   * @returns {Array} contradictions found
-   */
+
   checkAccountingIdentity(metrics) {
     const issues = [];
     
@@ -114,7 +101,7 @@ class ContradictionDetector {
       const assets = metrics.totalAssets.map(m => m.value);
       const liabilities = metrics.totalLiabilities.map(m => m.value);
       
-      // Compare each pair
+
       assets.forEach((assetVal, aIdx) => {
         liabilities.forEach((liabVal, lIdx) => {
           const deviation = Math.abs(assetVal - liabVal);
@@ -138,11 +125,7 @@ class ContradictionDetector {
     return issues;
   }
 
-  /**
-   * Check profit reconciliation (Revenue - Expenses = Profit)
-   * @param {Object} metrics
-   * @returns {Array} contradictions found
-   */
+
   checkProfitReconciliation(metrics) {
     const issues = [];
 
@@ -177,11 +160,7 @@ class ContradictionDetector {
     return issues;
   }
 
-  /**
-   * Check for unusual tax ratios (Tax vs Profit anomalies)
-   * @param {Object} metrics
-   * @returns {Array} contradictions found
-   */
+
   checkTaxAnomalies(metrics) {
     const issues = [];
 
@@ -191,7 +170,6 @@ class ContradictionDetector {
           if (profit.value > 0) {
             const taxRatio = (tax.value / profit.value) * 100;
             
-            // Indian standard tax rate is ~25-30%
             if (taxRatio > 50 || (taxRatio > 0 && profit.value > 0 && taxRatio < 5)) {
               issues.push({
                 type: 'TAX_ANOMALY',
@@ -212,18 +190,12 @@ class ContradictionDetector {
     return issues;
   }
 
-  /**
-   * Check for cash flow consistency issues
-   * @param {Object} metrics
-   * @returns {Array} contradictions found
-   */
   checkCashFlowConsistency(metrics) {
     const issues = [];
 
     if (metrics.cashFlow.length > 0 && metrics.netProfit.length > 0) {
       metrics.cashFlow.forEach((cf, cfIdx) => {
         metrics.netProfit.forEach((profit, pIdx) => {
-          // Cash flow should be in ~same ballpark as net profit (within 40%)
           const deviation = Math.abs(cf.value - profit.value);
           const percentDev = (deviation / Math.max(Math.abs(cf.value), Math.abs(profit.value), 1)) * 100;
 
@@ -246,11 +218,6 @@ class ContradictionDetector {
     return issues;
   }
 
-  /**
-   * Detect duplicate or near-duplicate financial figures across document
-   * @param {Object} metrics
-   * @returns {Array} duplicates found
-   */
   detectDuplicates(metrics) {
     const duplicates = [];
     const tolerance = 0.01; 
@@ -291,12 +258,6 @@ class ContradictionDetector {
     return duplicates;
   }
 
-  /**
-   * Analyze text for contradictions with caching
-   * @param {string} text
-   * @param {string} documentId
-   * @returns {Object} analysis results
-   */
   analyzeText(text, documentId = null) {
     const cacheKey = documentId || crypto.createHash('md5').update(text).digest('hex');
     
@@ -313,7 +274,7 @@ class ContradictionDetector {
     contradictions.push(...this.checkCashFlowConsistency(metrics));
     contradictions.push(...this.detectDuplicates(metrics));
 
-    // Sort by severity
+
     const severityOrder = { CRITICAL: 0, HIGH: 1, MEDIUM: 2, LOW: 3 };
     contradictions.sort((a, b) => severityOrder[a.severity] - severityOrder[b.severity]);
 
@@ -342,11 +303,6 @@ class ContradictionDetector {
     return result;
   }
 
-  /**
-   * Get inline suggestions for fixing contradictions
-   * @param {Array} contradictions
-   * @returns {Array} suggestions
-   */
   getSuggestions(contradictions) {
     return contradictions.map(contradiction => {
       const suggestions = [];
@@ -389,11 +345,6 @@ class ContradictionDetector {
     });
   }
 
-  /**
-   * Generate risk score based on contradictions
-   * @param {Object} analysisResult
-   * @returns {number} risk score 0-100
-   */
   generateRiskScore(analysisResult) {
     const { summary } = analysisResult;
     

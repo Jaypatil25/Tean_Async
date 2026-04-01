@@ -1,16 +1,11 @@
-import { parsePDF } from "./parsers/pdfParser.js";
 import { addToRAG, retrieveContext } from "./rag/ragService.js";
-import { callClaude } from "./llm/claudeService.js";
+
 import { buildPrompt } from "./scoring/scoringService.js";
+import { callClaude } from "./llm/claudeService.js";
 import contradictionDetector from "./analysis/contradictionDetector.js";
 import ownershipGraph from "./analysis/ownershipGraph.js";
+import { parsePDF } from "./parsers/pdfParser.js";
 
-/**
- * Main AI Pipeline with extended financial analysis
- * @param {Object} formData
- * @param {Object} files { pnl: path, bank: path }
- * @param {Object} companyData optional company ownership/director data
- */
 export const runPipeline = async (formData, files = {}, companyData = {}) => {
   try {
     console.log("\nStarting AI Credit Pipeline with Extended Analysis...\n");
@@ -110,7 +105,6 @@ export const runPipeline = async (formData, files = {}, companyData = {}) => {
       console.log("Context retrieved from RAG");
     }
 
-    // ========== ENHANCED PROMPT WITH CONTRADICTION DATA ==========
     console.log("Building enhanced LLM prompt with contradiction analysis...");
 
     const enhancedPrompt = buildPromptWithAnalysis(

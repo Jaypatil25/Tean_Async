@@ -7,11 +7,7 @@ class OwnershipGraph {
     this.riskCache = new Map();
   }
 
-  /**
-   * Add a company node to the graph
-   * @param {string} companyId unique identifier
-   * @param {Object} data company details
-   */
+
   addNode(companyId, data) {
     this.nodes.set(companyId, {
       id: companyId,
@@ -32,12 +28,6 @@ class OwnershipGraph {
     });
   }
 
-  /**
-   * Add an ownership relationship edge
-   * @param {string} fromId owner company/person
-   * @param {string} toId owned company
-   * @param {Object} relationshipData stake, roles, etc
-   */
   addOwnershipEdge(fromId, toId, relationshipData) {
     const edgeKey = `${fromId}->${toId}`;
     
@@ -45,7 +35,7 @@ class OwnershipGraph {
       from: fromId,
       to: toId,
       stake: relationshipData.stake || 0,
-      type: relationshipData.type || 'OWNERSHIP', // OWNERSHIP, DIRECTORSHIP, NOMINEE
+      type: relationshipData.type || 'OWNERSHIP', 
       startDate: relationshipData.startDate || null,
       role: relationshipData.role || null,
       ...relationshipData
@@ -59,12 +49,7 @@ class OwnershipGraph {
     }
   }
 
-  /**
-   * Find all predecessors (owners) of a company
-   * @param {string} companyId
-   * @param {number} depth how many levels to traverse
-   * @returns {Array} predecessors with relationship chain
-   */
+
   findOwners(companyId, depth = 3) {
     const visited = new Set();
     const owners = [];
@@ -83,7 +68,6 @@ class OwnershipGraph {
             depth: depth - currentDepth
           });
 
-          // Recursive search
           traverse(edge.from, currentDepth - 1, newChain);
         }
       }
@@ -93,12 +77,6 @@ class OwnershipGraph {
     return owners;
   }
 
-  /**
-   * Find all subsidiaries (owned companies) of a company
-   * @param {string} companyId
-   * @param {number} depth
-   * @returns {Array} subsidiaries with relationship chain
-   */
   findSubsidiaries(companyId, depth = 3) {
     const visited = new Set();
     const subsidiaries = [];
@@ -125,12 +103,7 @@ class OwnershipGraph {
     return subsidiaries;
   }
 
-  /**
-   * Detect ultimate beneficial owners using transitive closure
-   * @param {string} companyId
-   * @param {number} stakeThreshold minimum stake % to consider
-   * @returns {Array} ultimate owners
-   */
+
   detectUltimateBeneficialOwners(companyId, stakeThreshold = 0.1) {
     const owners = this.findOwners(companyId, 10);
     const ultimateOwners = new Map();
@@ -166,11 +139,6 @@ class OwnershipGraph {
     return Array.from(ultimateOwners.values());
   }
 
-  /**
-   * Shell company risk indicators analysis
-   * @param {string} companyId
-   * @returns {Object} risk analysis
-   */
   analyzeShellCompanyRisk(companyId) {
     const cacheKey = `shell_risk_${companyId}`;
     if (this.riskCache.has(cacheKey)) {
@@ -189,7 +157,6 @@ class OwnershipGraph {
       LOW: []
     };
 
-    //recent registration (< 1 year)
     if (company.registrationDate) {
       const regDate = new Date(company.registrationDate);
       const daysSinceReg = (Date.now() - regDate.getTime()) / (1000 * 60 * 60 * 24);
@@ -202,7 +169,7 @@ class OwnershipGraph {
       }
     }
 
-    //no directors 
+
     if (!company.directors || company.directors.length === 0) {
       indicators.CRITICAL.push({
         code: 'NO_DIRECTORS',
@@ -231,7 +198,7 @@ class OwnershipGraph {
       });
     }
 
-    //o employees or extreme employee ratio
+
     if (!company.employeeCount || company.employeeCount === 0) {
       indicators.HIGH.push({
         code: 'NO_EMPLOYEES',
@@ -240,7 +207,7 @@ class OwnershipGraph {
       });
     } else if (company.turnover > 0) {
       const turnoverPerEmployee = company.turnover / company.employeeCount;
-      if (turnoverPerEmployee > 50000000) { // ₹5Cr per employee is unusual
+      if (turnoverPerEmployee > 50000000) { 
         indicators.MEDIUM.push({
           code: 'EXTREME_TURNOVER_RATIO',
           message: `Turnover per employee: ₹${(turnoverPerEmployee / 10000000).toFixed(1)}Cr (unusually high)`,
@@ -249,7 +216,7 @@ class OwnershipGraph {
       }
     }
 
-    // no recent filings
+
     if (company.lastFilingDate) {
       const lastFilingDate = new Date(company.lastFilingDate);
       const daysSinceFiling = (Date.now() - lastFilingDate.getTime()) / (1000 * 60 * 60 * 24);
@@ -262,7 +229,7 @@ class OwnershipGraph {
       }
     }
 
-    // shared directors (Nominee complex)
+
     const sharedDirectors = this.findCommonDirectors(companyId);
     if (sharedDirectors.length > 0) {
       indicators.MEDIUM.push({
@@ -272,7 +239,7 @@ class OwnershipGraph {
       });
     }
 
-    // complex ownership structure
+
     const owners = this.findOwners(companyId, 3);
     if (owners.length > 5) {
       indicators.MEDIUM.push({
@@ -282,7 +249,7 @@ class OwnershipGraph {
       });
     }
 
-    // circular ownership detection
+
     const hasCircular = this.detectCircularOwnership(companyId);
     if (hasCircular) {
       indicators.CRITICAL.push({
@@ -329,11 +296,7 @@ class OwnershipGraph {
     return risk;
   }
 
-  /**
-   * Find directors shared across multiple companies
-   * @param {string} companyId
-   * @returns {Array} shared directors with their companies
-   */
+
   findCommonDirectors(companyId) {
     const company = this.nodes.get(companyId);
     if (!company || !company.directors) return [];
@@ -359,11 +322,7 @@ class OwnershipGraph {
     return commonDirectors;
   }
 
-  /**
-   * Detect circular ownership patterns
-   * @param {string} companyId
-   * @returns {Array|null} circular path if found
-   */
+  
   detectCircularOwnership(companyId) {
     const visited = new Set();
     const recursionStack = new Set();
@@ -394,10 +353,7 @@ class OwnershipGraph {
     return cycle && Array.isArray(cycle) ? cycle : null;
   }
 
-  /**
-   * Detect company networks (groups of connected companies)
-   * @returns {Array} company networks/groups
-   */
+  
   detectCompanyNetworks() {
     const visited = new Set();
     const networks = [];
@@ -439,11 +395,7 @@ class OwnershipGraph {
     return networks;
   }
 
-  /**
-   * Generate comprehensive graph report
-   * @param {string} companyId
-   * @returns {Object} detailed graph analysis
-   */
+  
   generateGraphReport(companyId) {
     const company = this.nodes.get(companyId);
     if (!company) return { error: 'Company not found' };
@@ -480,10 +432,7 @@ class OwnershipGraph {
     };
   }
 
-  /**
-   * Export graph for visualization
-   * @returns {Object} graph data in D3.js compatible format
-   */
+  
   exportForVisualization() {
     const nodes = Array.from(this.nodes.values()).map(node => ({
       id: node.id,
@@ -504,10 +453,7 @@ class OwnershipGraph {
     return { nodes, edges };
   }
 
-  /**
-   * Export graph data for backend storage
-   * @returns {Object} serializable graph state
-   */
+
   exportGraphData() {
     return {
       nodes: Array.from(this.nodes.entries()).map(([id, data]) => [id, data]),
@@ -516,10 +462,7 @@ class OwnershipGraph {
     };
   }
 
-  /**
-   * Import graph data from storage
-   * @param {Object} data
-   */
+
   importGraphData(data) {
     this.nodes.clear();
     this.edges.clear();
@@ -533,7 +476,7 @@ class OwnershipGraph {
       this.edges.set(key, edgeData);
     });
   }
-// clear data
+
   clear() {
 
     this.edges.clear();
