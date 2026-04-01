@@ -1,9 +1,20 @@
 const User = require('../models/user.model');
+const localUserStore = require('./localUserStore.service');
 const { hashPassword, comparePassword } = require('../utils/hash');
 const { signAccessToken } = require('../utils/jwt');
+const { getDatabaseMode } = require('../config/runtime');
+
+const sanitizeUser = (user) => {
+  const plainUser =
+    typeof user.toObject === 'function' ? user.toObject() : { ...user };
+  delete plainUser.password;
+  return plainUser;
+};
+
+const userStore = () => (getDatabaseMode() === 'file' ? localUserStore : User);
 
 const registerUser = async ({ name, email, password }) => {
-  const existing = await User.findOne({ email });
+  const existing = await userStore().findOne({ email });
 
   if (existing) {
     throw new Error('Email already exists');
@@ -11,13 +22,13 @@ const registerUser = async ({ name, email, password }) => {
 
   const hashed = await hashPassword(password);
 
-  const user = await User.create({ name, email, password: hashed });
+  const user = await userStore().create({ name, email, password: hashed });
 
-  return user;
+  return sanitizeUser(user);
 };
 
 const loginUser = async ({ email, password }) => {
-  const user = await User.findOne({ email });
+  const user = await userStore().findOne({ email });
 
   if (!user) {
     throw new Error('Invalid credentials');
@@ -31,7 +42,20 @@ const loginUser = async ({ email, password }) => {
 
   const token = signAccessToken({ id: user._id, role: user.role });
 
-  return { token, user };
+  return { token, user: sanitizeUser(user) };
 };
 
-module.exports = { registerUser, loginUser };
+const getCurrentUser = async (id) => {
+  const user =
+    getDatabaseMode() === 'file'
+      ? await localUserStore.findById(id)
+      : await User.findById(id);
+
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  return sanitizeUser(user);
+};
+
+module.exports = { registerUser, loginUser, getCurrentUser };

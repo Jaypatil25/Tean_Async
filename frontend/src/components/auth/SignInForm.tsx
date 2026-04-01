@@ -1,14 +1,44 @@
 import { useState } from "react";
-import { Link } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from "../../icons";
 import Label from "../form/Label";
 import Input from "../form/input/InputField";
 import Checkbox from "../form/input/Checkbox";
 import Button from "../ui/button/Button";
+import { useAuth } from "../../context/AuthContext";
 
 export default function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { login } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const redirectPath =
+    (location.state as { from?: { pathname?: string } } | null)?.from
+      ?.pathname || "/dashboard";
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setErrorMessage("");
+    setIsSubmitting(true);
+
+    try {
+      await login({ email, password });
+      navigate(redirectPath, { replace: true });
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : "Unable to sign in right now"
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="flex flex-col flex-1">
       <div className="w-full max-w-md pt-10 mx-auto">
@@ -83,13 +113,21 @@ export default function SignInForm() {
                 </span>
               </div>
             </div>
-            <form>
+            <form onSubmit={handleSubmit}>
               <div className="space-y-6">
                 <div>
                   <Label>
                     Email <span className="text-error-500">*</span>{" "}
                   </Label>
-                  <Input placeholder="info@gmail.com" />
+                  <Input
+                    type="email"
+                    id="email"
+                    name="email"
+                    placeholder="info@gmail.com"
+                    value={email}
+                    onChange={(event) => setEmail(event.target.value)}
+                    error={Boolean(errorMessage)}
+                  />
                 </div>
                 <div>
                   <Label>
@@ -97,8 +135,13 @@ export default function SignInForm() {
                   </Label>
                   <div className="relative">
                     <Input
+                      id="password"
+                      name="password"
                       type={showPassword ? "text" : "password"}
                       placeholder="Enter your password"
+                      value={password}
+                      onChange={(event) => setPassword(event.target.value)}
+                      error={Boolean(errorMessage)}
                     />
                     <span
                       onClick={() => setShowPassword(!showPassword)}
@@ -112,6 +155,9 @@ export default function SignInForm() {
                     </span>
                   </div>
                 </div>
+                {errorMessage ? (
+                  <p className="text-sm text-error-500">{errorMessage}</p>
+                ) : null}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <Checkbox checked={isChecked} onChange={setIsChecked} />
@@ -127,8 +173,12 @@ export default function SignInForm() {
                   </Link>
                 </div>
                 <div>
-                  <Button className="w-full" size="sm">
-                    Sign in
+                  <Button
+                    className="w-full"
+                    size="sm"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? "Signing in..." : "Sign in"}
                   </Button>
                 </div>
               </div>

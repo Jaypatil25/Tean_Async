@@ -1,6 +1,3 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { Link, useLocation } from "react-router";
-
 // Assume these icons are imported from an icon library
 import {
   ChevronDownIcon,
@@ -8,6 +5,9 @@ import {
   ListIcon,
   UserCircleIcon,
 } from "../icons";
+import { Link, useLocation } from "react-router";
+import { useCallback, useEffect, useRef, useState } from "react";
+
 import { useSidebar } from "../context/SidebarContext";
 
 type NavItem = {
@@ -18,6 +18,17 @@ type NavItem = {
 };
 
 const navItems: NavItem[] = [
+  {
+
+    icon: <GridIcon />,
+    name: "Dashboard",
+    subItems: [{ name: "Ecommerce", path: "/dashboard", pro: false }],
+  },
+  {
+    icon: <CalenderIcon />,
+    name: "Calendar",
+    path: "/calendar",
+  },
   {
     icon: <UserCircleIcon />,
     name: "User Profile",

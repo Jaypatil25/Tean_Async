@@ -1,4 +1,4 @@
-const { registerUser, loginUser } = require('../services/auth.service');
+const { registerUser, loginUser, getCurrentUser } = require('../services/auth.service');
 
 const signup = async (req, res) => {
   try {
@@ -22,4 +22,13 @@ const logout = async (req, res) => {
   res.json({ message: 'Logged out' });
 };
 
-module.exports = { signup, login, logout };
+const me = async (req, res) => {
+  try {
+    const user = await getCurrentUser(req.user.id);
+    res.json({ user });
+  } catch (err) {
+    res.status(404).json({ message: err.message });
+  }
+};
+
+module.exports = { signup, login, logout, me };

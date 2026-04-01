@@ -1,13 +1,48 @@
 import { useState } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from "../../icons";
 import Label from "../form/Label";
 import Input from "../form/input/InputField";
 import Checkbox from "../form/input/Checkbox";
+import { useAuth } from "../../context/AuthContext";
+import Button from "../ui/button/Button";
 
 export default function SignUpForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { signup } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (!isChecked) {
+      setErrorMessage("Please accept the terms and conditions to continue");
+      return;
+    }
+
+    setErrorMessage("");
+    setIsSubmitting(true);
+
+    try {
+      const name = `${firstName} ${lastName}`.trim();
+      await signup({ name, email, password });
+      navigate("/dashboard", { replace: true });
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : "Unable to create account"
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="flex flex-col flex-1 w-full overflow-y-auto lg:w-1/2 no-scrollbar">
       <div className="w-full max-w-md mx-auto mb-5 sm:pt-10">
@@ -82,7 +117,7 @@ export default function SignUpForm() {
                 </span>
               </div>
             </div>
-            <form>
+            <form onSubmit={handleSubmit}>
               <div className="space-y-5">
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                   {/* <!-- First Name --> */}
@@ -95,6 +130,9 @@ export default function SignUpForm() {
                       id="fname"
                       name="fname"
                       placeholder="Enter your first name"
+                      value={firstName}
+                      onChange={(event) => setFirstName(event.target.value)}
+                      error={Boolean(errorMessage)}
                     />
                   </div>
                   {/* <!-- Last Name --> */}
@@ -107,6 +145,9 @@ export default function SignUpForm() {
                       id="lname"
                       name="lname"
                       placeholder="Enter your last name"
+                      value={lastName}
+                      onChange={(event) => setLastName(event.target.value)}
+                      error={Boolean(errorMessage)}
                     />
                   </div>
                 </div>
@@ -120,6 +161,9 @@ export default function SignUpForm() {
                     id="email"
                     name="email"
                     placeholder="Enter your email"
+                    value={email}
+                    onChange={(event) => setEmail(event.target.value)}
+                    error={Boolean(errorMessage)}
                   />
                 </div>
                 {/* <!-- Password --> */}
@@ -129,8 +173,13 @@ export default function SignUpForm() {
                   </Label>
                   <div className="relative">
                     <Input
+                      id="password"
+                      name="password"
                       placeholder="Enter your password"
                       type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(event) => setPassword(event.target.value)}
+                      error={Boolean(errorMessage)}
                     />
                     <span
                       onClick={() => setShowPassword(!showPassword)}
@@ -144,6 +193,9 @@ export default function SignUpForm() {
                     </span>
                   </div>
                 </div>
+                {errorMessage ? (
+                  <p className="text-sm text-error-500">{errorMessage}</p>
+                ) : null}
                 {/* <!-- Checkbox --> */}
                 <div className="flex items-center gap-3">
                   <Checkbox
@@ -164,9 +216,9 @@ export default function SignUpForm() {
                 </div>
                 {/* <!-- Button --> */}
                 <div>
-                  <button className="flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600">
-                    Sign Up
-                  </button>
+                  <Button className="w-full" size="sm" disabled={isSubmitting}>
+                    {isSubmitting ? "Creating account..." : "Sign Up"}
+                  </Button>
                 </div>
               </div>
             </form>

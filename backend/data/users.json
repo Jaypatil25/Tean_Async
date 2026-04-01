@@ -1,0 +1,36 @@
+[
+  {
+    "_id": "696a9eb1-91da-4ca9-bb01-a8306874924b",
+    "name": "Codex Test",
+    "email": "codex-1775035314962@example.com",
+    "password": "$2b$10$4m5HIjyMUu.ECeLkRaGhDu8ZCtnookWxWbS2nBWNc9/AxStkUR9ty",
+    "role": "user",
+    "createdAt": "2026-04-01T09:21:55.036Z",
+    "updatedAt": "2026-04-01T09:21:55.042Z"
+  },
+  {
+    "_id": "c228106c-5a60-4ae2-a0d7-01df3a332fc8",
+    "name": "Random tt",
+    "email": "random@gmail.com",
+    "password": "$2b$10$I.Ae8RgKhKMcoJIHKIXZPuPEgfH5x5ZX.Iv1iYxZKjdP.KNwONA7K",
+    "role": "user",
+    "createdAt": "2026-04-01T09:22:25.851Z",
+    "updatedAt": "2026-04-01T09:22:25.852Z"
+  },
+  {
+    "_id": "bec7f1b0-9197-45ae-b3f2-9174b74d56b0",
+    "name": "Verify User",
+    "email": "verify-1775036130791@example.com",
+    "password": "$2b$10$7634HVw3VJiiaIQCXh6k7uFvORaoqM4B.YexiqL3hIYRcm6ueElfa",
+    "role": "user",
+    "phone": "",
+    "bio": "",
+    "avatarUrl": "",
+    "country": "",
+    "city": "",
+    "postalCode": "",
+    "taxId": "",
+    "createdAt": "2026-04-01T09:35:30.929Z",
+    "updatedAt": "2026-04-01T09:35:30.930Z"
+  }
+]

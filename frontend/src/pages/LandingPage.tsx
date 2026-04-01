@@ -1,16 +1,32 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { EyeIcon, EyeCloseIcon } from "../icons";
+import { useAuth } from "../context/AuthContext";
 
 export default function LandingPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
+  const { isAuthenticated, login, user } = useAuth();
 
-  const handleSignIn = (e: React.FormEvent) => {
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    navigate("/dashboard");
+    setErrorMessage("");
+    setIsSubmitting(true);
+
+    try {
+      await login({ email, password });
+      navigate("/dashboard");
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : "Unable to sign in right now"
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -36,7 +52,7 @@ export default function LandingPage() {
           {/* CTA */}
           <div className="flex items-center gap-3">
             <Link to="/signin" className="hidden sm:block text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors">
-              Sign in
+              {isAuthenticated ? "Dashboard" : "Sign in"}
             </Link>
             <Link to="/apply" className="inline-flex items-center gap-2 px-4 py-2 bg-brand-500 hover:bg-brand-600 text-white text-sm font-semibold rounded-lg transition-colors">
               Apply Now
@@ -116,6 +132,16 @@ export default function LandingPage() {
             <div className="mb-8">
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">Welcome back</h2>
               <p className="text-sm text-gray-500 dark:text-gray-400">Sign in to your Credify account</p>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
+                {isAuthenticated
+                  ? `Welcome back, ${user?.name?.split(" ")[0] ?? "there"}`
+                  : "Welcome back"}
+              </h2>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                {isAuthenticated
+                  ? "Your account is already active. Continue to the dashboard when you're ready."
+                  : "Sign in to your CreditAI account"}
+              </p>
             </div>
 
             {/* Social buttons */}
@@ -199,11 +225,20 @@ export default function LandingPage() {
                 </a>
               </div>
 
+              {errorMessage ? (
+                <p className="text-sm text-error-500">{errorMessage}</p>
+              ) : null}
+
               <button
                 type="submit"
-                className="w-full h-11 bg-brand-500 hover:bg-brand-600 text-white font-semibold rounded-lg text-sm transition-colors shadow-theme-xs hover:shadow-theme-sm"
+                disabled={isSubmitting || isAuthenticated}
+                className="w-full h-11 bg-brand-500 hover:bg-brand-600 disabled:bg-brand-300 disabled:cursor-not-allowed text-white font-semibold rounded-lg text-sm transition-colors shadow-theme-xs hover:shadow-theme-sm"
               >
-                Sign in
+                {isAuthenticated
+                  ? "Already signed in"
+                  : isSubmitting
+                  ? "Signing in..."
+                  : "Sign in"}
               </button>
             </form>
 
