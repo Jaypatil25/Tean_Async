@@ -1,10 +1,12 @@
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
 import { useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
 import './App.css'
+import Form from './Form'
 
-function App() {
+function Home() {
   const [count, setCount] = useState(0)
 
   return (
@@ -115,6 +117,21 @@ function App() {
       <div className="ticks"></div>
       <section id="spacer"></section>
     </>
+  )
+}
+
+function App() {
+  return (
+    <Router>
+      <nav style={{ padding: '10px', marginBottom: '20px' }}>
+        <Link to="/" style={{ marginRight: '15px' }}>Home</Link>
+        <Link to="/form">Form</Link>
+      </nav>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/form" element={<Form />} />
+      </Routes>
+    </Router>
   )
 }
 
