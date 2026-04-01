@@ -8,7 +8,9 @@ export const runPipeline = async (formData, files = {}) => {
     const pnlText = files.pnl ? await parsePDF(files.pnl) : "";
     const bankText = files.bank ? await parsePDF(files.bank) : "";
 
-    const context = await retrieveContext();
+    const context = retrieveContext(
+  `${formData.businessType} loan risk ${formData.loanAmount}`
+);
 
     const prompt = buildPrompt(
       formData,
