@@ -5,4 +5,4 @@ Average profit margin: 10-15%
 Risk level: Medium
 Common fraud signals: GST mismatch, cash flow inconsistency
 `;
-};
+};  
